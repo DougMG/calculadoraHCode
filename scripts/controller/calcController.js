@@ -51,8 +51,34 @@ class CalcController {
         */
     }
 
+    pushOperator(value){
+        this._operation.push(value);
+        if (this._operation.length > 3) {
+            this.calc();
+            console.log(this._operation);
+        }
+    }
+    
+    calc(){
+        let last = this._operation.pop();
+        let result = eval(this._operation.join(""));
+        this._operation = [result, last];
+        this.setLastNumberToDisplay();
+    }
+
+    setLastNumberToDisplay(){
+        let lastNumber;
+        for(let i = this._operation.length - 1; i >= 0; i--){
+            if (!isNaN(this._operation[i])) {
+                lastNumber = this._operation[i];
+                break;
+            }
+        }
+
+        this.displayCalc = lastNumber;
+    }
+
     addOperation(value){
-        console.log('A', isNaN(this.getLastOperation()));
         if (isNaN(this.getLastOperation())) {
             if (this.isOperator(value)) {
                 this.setLastOperation(value);
@@ -60,15 +86,19 @@ class CalcController {
                 // other thing
                 console.log("other thing - NaN");
             }else{
-                this._operation.push(value);
+                this.pushOperator(value);
+                this.setLastNumberToDisplay();
             }
-        }else{
-            console.log("dentro");
-            let newValue = this.getLastOperation().toString() + value.toString();
-            console.log("newValue", newValue);
-            this.setLastOperation(parseInt(newValue));
-        }
-        console.log("array", this._operation);
+        }else{            
+            if (this.isOperator(value)) {
+                this.pushOperator(value);
+            } else {
+                let newValue = this.getLastOperation().toString() + value.toString();
+                this.setLastOperation(parseInt(newValue));
+
+                this.setLastNumberToDisplay();
+            }
+        }        
     }
 
     setError(){
